@@ -17,17 +17,20 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.PathSegment;
 import web.FaMealParts;
 import web.FaMealPartsPK;
+import javax.ws.rs.core.Response;
+import utilities.Error;
 
 /**
  *
  * @author Ian
  */
 @Stateless
-@Path("web.famealparts")
+@Path("mealparts")
 public class FaMealPartsFacadeREST extends AbstractFacade<FaMealParts> {
 
     @PersistenceContext(unitName = "foodAppPU")
@@ -57,48 +60,98 @@ public class FaMealPartsFacadeREST extends AbstractFacade<FaMealParts> {
     public FaMealPartsFacadeREST() {
         super(FaMealParts.class);
     }
-
+    
     @POST
-    @Override
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void create(FaMealParts entity) {
-        super.create(entity);
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response createMealPart(FaMealParts entity) {
+        
+        Error createFail = new Error( 102, "failed", "Unable to create food diary entry");
+        Error createSuccess = new Error( 201, "success", "The user food diary entry created successfully");
+        
+        if (super.create(entity)) {
+            return Response.ok(createSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(createFail, MediaType.APPLICATION_JSON).build();
+        }       
     }
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void edit(@PathParam("id") PathSegment id, FaMealParts entity) {
-        super.edit(entity);
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response edit(@PathParam("id") Integer id, FaMealParts entity) {
+        
+        Error updateFail = new Error( 102, "failed", "Unable to update user");
+        Error updateSuccess = new Error( 201, "success", "The user was updated successfully");
+        
+        if (super.edit(entity)) {
+            return Response.ok(updateSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(updateFail, MediaType.APPLICATION_JSON).build();
+        }
+        
     }
-
+    
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") PathSegment id) {
-        web.FaMealPartsPK key = getPrimaryKey(id);
-        super.remove(super.find(key));
+    public Response remove(@PathParam("id") Integer id) {
+        
+        Error deleteFail = new Error( 102, "failed", "Unable to delete");
+        Error deleteSuccess = new Error( 201, "success", "The deletion was sucessful");
+        
+        if (super.remove(super.find(id))) {
+            return Response.ok(deleteSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(deleteFail, MediaType.APPLICATION_JSON).build();
+        }
     }
-
+    
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public FaMealParts find(@PathParam("id") PathSegment id) {
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response find(@PathParam("id") PathSegment id) {
+        
         web.FaMealPartsPK key = getPrimaryKey(id);
-        return super.find(key);
+        
+        FaMealParts meal_parts = super.find(key);
+        Error no_meal_parts = new Error( 101, "no_user", "There is no user with that ID");
+            
+        if ( meal_parts == null ) {
+            return Response.ok(no_meal_parts, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(meal_parts, MediaType.APPLICATION_JSON).build();
+        }
     }
-
+   
     @GET
-    @Override
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<FaMealParts> findAll() {
-        return super.findAll();
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getAll() {
+        
+        List<FaMealParts> meal_parts = super.findAll();
+        Error no_meal_parts = new Error( 101, "no_users", "There are no users");
+        
+        if ( meal_parts.size() > 0 ) {
+            GenericEntity<List<FaMealParts>> return_meal_parts = new GenericEntity<List<FaMealParts>>(meal_parts) {}; 
+            return Response.ok(return_meal_parts, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(no_meal_parts, MediaType.APPLICATION_JSON).build();
+        }
     }
 
     @GET
     @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<FaMealParts> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
+        
+        List<FaMealParts> meal_parts = super.findRange(new int[]{from, to});
+        Error no_meal_parts = new Error( 101, "no_users", "There are no users");
+        
+        if ( meal_parts.size() > 0 ) {
+             GenericEntity<List<FaMealParts>> return_meal_parts = new GenericEntity<List<FaMealParts>>(meal_parts) {}; 
+            return Response.ok(return_meal_parts, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(no_meal_parts, MediaType.APPLICATION_JSON).build();
+        }
+
     }
 
     @GET

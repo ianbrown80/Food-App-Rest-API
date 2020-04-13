@@ -17,15 +17,19 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import web.FaUsers;
+import utilities.Password;
+import utilities.Error;
 
 /**
  *
  * @author Ian
  */
 @Stateless
-@Path("web.fausers")
+@Path("users")
 public class FaUsersFacadeREST extends AbstractFacade<FaUsers> {
 
     @PersistenceContext(unitName = "foodAppPU")
@@ -36,44 +40,100 @@ public class FaUsersFacadeREST extends AbstractFacade<FaUsers> {
     }
 
     @POST
-    @Override
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void create(FaUsers entity) {
-        super.create(entity);
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response createUser(FaUsers entity) {
+        
+        String salt = Password.generateSalt(512).get();
+        entity.setSalt(salt);
+        entity.setPassword(Password.hashPassword(entity.getPassword(),salt).get());
+        
+        Error createFail = new Error( 102, "failed", "Unable to create user");
+        Error createSuccess = new Error( 201, "success", "The user was created successfully");
+        
+        if (super.create(entity)) {
+            return Response.ok(createSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(createFail, MediaType.APPLICATION_JSON).build();
+        }       
     }
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void edit(@PathParam("id") Integer id, FaUsers entity) {
-        super.edit(entity);
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response edit(@PathParam("id") Integer id, FaUsers entity) {
+        
+        Error updateFail = new Error( 102, "failed", "Unable to update user");
+        Error updateSuccess = new Error( 201, "success", "The user was updated successfully");
+        
+        if (super.edit(entity)) {
+            return Response.ok(updateSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(updateFail, MediaType.APPLICATION_JSON).build();
+        }
+        
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
+    public Response remove(@PathParam("id") Integer id) {
+        
+        Error deleteFail = new Error( 102, "failed", "Unable to delete");
+        Error deleteSuccess = new Error( 201, "success", "The deletion was sucessful");
+        
+        if (super.remove(super.find(id))) {
+            return Response.ok(deleteSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(deleteFail, MediaType.APPLICATION_JSON).build();
+        }
     }
 
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public FaUsers find(@PathParam("id") Integer id) {
-        return super.find(id);
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response find(@PathParam("id") Integer id) {
+        
+        FaUsers user = super.find(id);
+        Error no_user = new Error( 101, "no_user", "There is no user with that ID");
+            
+        if ( user == null ) {
+            return Response.ok(no_user, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(user, MediaType.APPLICATION_JSON).build();
+        }
     }
 
     @GET
-    @Override
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<FaUsers> findAll() {
-        return super.findAll();
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getAll() {
+        
+        List<FaUsers> users = super.findAll();
+        Error no_users = new Error( 101, "no_users", "There are no users");
+        
+        if ( users.size() > 0 ) {
+            
+            GenericEntity<List<FaUsers>> users_return = new GenericEntity<List<FaUsers>>(users) {}; 
+            return Response.ok(users_return, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(no_users, MediaType.APPLICATION_JSON).build();
+        }
+  
     }
 
     @GET
     @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<FaUsers> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
+        
+        List<FaUsers> users = super.findRange(new int[]{from, to});
+        Error no_users = new Error( 101, "no_users", "There are no users");
+        
+        if ( users.size() > 0 ) {
+            GenericEntity<List<FaUsers>> return_users = new GenericEntity<List<FaUsers>>(users) {}; 
+            return Response.ok(return_users, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(no_users, MediaType.APPLICATION_JSON).build();
+        }
+        
     }
 
     @GET
@@ -88,4 +148,20 @@ public class FaUsersFacadeREST extends AbstractFacade<FaUsers> {
         return em;
     }
     
+    @POST
+    @Path("login")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response login(FaUsers entity) {
+        
+        FaUsers user = super.login(entity.getEmail());
+        Error error = new Error(100, "login_failed", "Unable to log you in, please try again");
+        
+        if ( Password.verifyPassword(entity.getPassword(), user.getPassword(), user.getSalt())) {
+            return Response.ok(user, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(error, MediaType.APPLICATION_JSON).build();
+        }
+
+    }
 }

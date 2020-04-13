@@ -17,15 +17,18 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import web.FaUserSymptoms;
+import javax.ws.rs.core.Response;
+import utilities.Error;
 
 /**
  *
  * @author Ian
  */
 @Stateless
-@Path("web.fausersymptoms")
+@Path("usersymptoms")
 public class FaUserSymptomsFacadeREST extends AbstractFacade<FaUserSymptoms> {
 
     @PersistenceContext(unitName = "foodAppPU")
@@ -34,46 +37,98 @@ public class FaUserSymptomsFacadeREST extends AbstractFacade<FaUserSymptoms> {
     public FaUserSymptomsFacadeREST() {
         super(FaUserSymptoms.class);
     }
-
+    
     @POST
-    @Override
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void create(FaUserSymptoms entity) {
-        super.create(entity);
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response createFoodType(FaUserSymptoms entity) {
+        
+        Error createFail = new Error( 102, "failed", "Unable to create food diary entry");
+        Error createSuccess = new Error( 201, "success", "The user food diary entry created successfully");
+        
+        if (super.create(entity)) {
+            return Response.ok(createSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(createFail, MediaType.APPLICATION_JSON).build();
+        }       
     }
-
+    
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void edit(@PathParam("id") Integer id, FaUserSymptoms entity) {
-        super.edit(entity);
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response edit(@PathParam("id") Integer id, FaUserSymptoms entity) {
+        
+        Error updateFail = new Error( 102, "failed", "Unable to update user");
+        Error updateSuccess = new Error( 201, "success", "The user was updated successfully");
+        
+        if (super.edit(entity)) {
+            return Response.ok(updateSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(updateFail, MediaType.APPLICATION_JSON).build();
+        }
+        
     }
-
+    
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
+    public Response remove(@PathParam("id") Integer id) {
+        
+        Error deleteFail = new Error( 102, "failed", "Unable to delete");
+        Error deleteSuccess = new Error( 201, "success", "The deletion was sucessful");
+        
+        if (super.remove(super.find(id))) {
+            return Response.ok(deleteSuccess, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(deleteFail, MediaType.APPLICATION_JSON).build();
+        }
     }
-
+    
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public FaUserSymptoms find(@PathParam("id") Integer id) {
-        return super.find(id);
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response find(@PathParam("id") Integer id) {
+        
+        FaUserSymptoms user_symptoms = super.find(id);
+        Error no_user_symptoms = new Error( 101, "no_user", "There is no user with that ID");
+            
+        if ( user_symptoms == null ) {
+            return Response.ok(no_user_symptoms, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(user_symptoms, MediaType.APPLICATION_JSON).build();
+        }
+
     }
 
+      
     @GET
-    @Override
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<FaUserSymptoms> findAll() {
-        return super.findAll();
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getAll() {
+        
+        List<FaUserSymptoms> user_symptoms = super.findAll();
+        Error no_user_symptoms = new Error( 101, "no_users", "There are no users");
+        
+        if ( user_symptoms.size() > 0 ) {
+            GenericEntity<List<FaUserSymptoms>> return_user_symptoms = new GenericEntity<List<FaUserSymptoms>>(user_symptoms) {}; 
+            return Response.ok(return_user_symptoms, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(no_user_symptoms, MediaType.APPLICATION_JSON).build();
+        }
     }
-
+    
     @GET
     @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<FaUserSymptoms> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
+        
+        List<FaUserSymptoms> user_symptoms = super.findRange(new int[]{from, to});
+        Error no_user_symptoms = new Error( 101, "no_users", "There are no users");
+        
+        if ( user_symptoms.size() > 0 ) {
+            GenericEntity<List<FaUserSymptoms>> return_user_symptoms = new GenericEntity<List<FaUserSymptoms>>(user_symptoms) {}; 
+            return Response.ok(return_user_symptoms, MediaType.APPLICATION_JSON).build();
+        } else {
+            return Response.ok(no_user_symptoms, MediaType.APPLICATION_JSON).build();
+        }
+
     }
 
     @GET

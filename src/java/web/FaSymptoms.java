@@ -109,7 +109,7 @@ public class FaSymptoms implements Serializable {
 
     @Override
     public String toString() {
-        return "web.FaSymptoms[ symptomId=" + symptomId + " ]";
+        return "Symptoms[ symptomId=" + symptomId + " ]";
     }
     
 }

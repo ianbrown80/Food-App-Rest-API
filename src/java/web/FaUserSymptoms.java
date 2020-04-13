@@ -134,7 +134,7 @@ public class FaUserSymptoms implements Serializable {
 
     @Override
     public String toString() {
-        return "web.FaUserSymptoms[ userSymptomId=" + userSymptomId + " ]";
+        return "UserSymptoms[ userSymptomId=" + userSymptomId + " ]";
     }
     
 }

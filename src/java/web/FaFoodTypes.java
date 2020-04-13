@@ -109,7 +109,7 @@ public class FaFoodTypes implements Serializable {
 
     @Override
     public String toString() {
-        return "web.FaFoodTypes[ foodTypeId=" + foodTypeId + " ]";
+        return "FoodTypes[ foodTypeId=" + foodTypeId + " ]";
     }
     
 }

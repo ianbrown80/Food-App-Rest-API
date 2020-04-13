@@ -77,7 +77,7 @@ public class FaMealPartsPK implements Serializable {
 
     @Override
     public String toString() {
-        return "web.FaMealPartsPK[ mealId=" + mealId + ", foodId=" + foodId + " ]";
+        return "MealPartsPK[ mealId=" + mealId + ", foodId=" + foodId + " ]";
     }
     
 }

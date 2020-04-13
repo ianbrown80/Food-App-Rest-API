@@ -35,7 +35,8 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "FaUsers.findByUserId", query = "SELECT f FROM FaUsers f WHERE f.userId = :userId")
     , @NamedQuery(name = "FaUsers.findByName", query = "SELECT f FROM FaUsers f WHERE f.name = :name")
     , @NamedQuery(name = "FaUsers.findByEmail", query = "SELECT f FROM FaUsers f WHERE f.email = :email")
-    , @NamedQuery(name = "FaUsers.findByPassword", query = "SELECT f FROM FaUsers f WHERE f.password = :password")})
+    , @NamedQuery(name = "FaUsers.findByPassword", query = "SELECT f FROM FaUsers f WHERE f.password = :password")
+    , @NamedQuery(name = "FaUsers.login", query = "SELECT f FROM FaUsers f WHERE f.email = :email AND f.password = :password")})
 public class FaUsers implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -60,6 +61,8 @@ public class FaUsers implements Serializable {
     @Size(min = 1, max = 255)
     @Column(name = "password")
     private String password;
+    @Column(name = "salt")
+    private String salt;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<FaFoodDiary> faFoodDiaryCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
@@ -72,11 +75,11 @@ public class FaUsers implements Serializable {
         this.userId = userId;
     }
 
-    public FaUsers(Integer userId, String name, String email, String password) {
+    public FaUsers(Integer userId, String name, String email, String password, String salt) {
         this.userId = userId;
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.salt = salt;
     }
 
     public Integer getUserId() {
@@ -109,6 +112,14 @@ public class FaUsers implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     @XmlTransient
@@ -151,7 +162,7 @@ public class FaUsers implements Serializable {
 
     @Override
     public String toString() {
-        return "web.FaUsers[ userId=" + userId + " ]";
+        return "userId=" + userId;
     }
     
 }

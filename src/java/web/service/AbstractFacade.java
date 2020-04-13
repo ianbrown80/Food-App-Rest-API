@@ -22,16 +22,32 @@ public abstract class AbstractFacade<T> {
 
     protected abstract EntityManager getEntityManager();
 
-    public void create(T entity) {
-        getEntityManager().persist(entity);
+    public Boolean create(T entity) {
+        try {
+            getEntityManager().persist(entity);
+            return true;
+        } catch( Exception e ) {
+            return false;
+        }
+        
     }
 
-    public void edit(T entity) {
-        getEntityManager().merge(entity);
+    public Boolean edit(T entity) {
+        try {
+            getEntityManager().merge(entity);
+            return true;
+        } catch( Exception e ) {
+            return false;
+        }
     }
 
-    public void remove(T entity) {
-        getEntityManager().remove(getEntityManager().merge(entity));
+    public Boolean remove(T entity) {
+        try {
+            getEntityManager().remove(getEntityManager().merge(entity));
+            return true;
+        } catch( Exception e ) {
+            return false;
+        }
     }
 
     public T find(Object id) {
@@ -59,6 +75,12 @@ public abstract class AbstractFacade<T> {
         cq.select(getEntityManager().getCriteriaBuilder().count(rt));
         javax.persistence.Query q = getEntityManager().createQuery(cq);
         return ((Long) q.getSingleResult()).intValue();
+    }
+    
+    public T login(String e) {
+        
+        return (T) getEntityManager().createNamedQuery("FaUsers.findByEmail").setParameter("email", e).getSingleResult();
+        
     }
     
 }

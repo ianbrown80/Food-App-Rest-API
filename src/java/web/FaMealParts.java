@@ -118,7 +118,7 @@ public class FaMealParts implements Serializable {
 
     @Override
     public String toString() {
-        return "web.FaMealParts[ faMealPartsPK=" + faMealPartsPK + " ]";
+        return "MealParts[ faMealPartsPK=" + faMealPartsPK + " ]";
     }
     
 }
