@@ -7,7 +7,7 @@ import web.FaFoodDiary;
 import web.FaFoods;
 import web.FaMealPartsPK;
 
-@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-04-13T17:33:37")
+@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-07-04T19:39:50")
 @StaticMetamodel(FaMealParts.class)
 public class FaMealParts_ { 
 

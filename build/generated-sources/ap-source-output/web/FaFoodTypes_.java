@@ -6,7 +6,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 import web.FaFoods;
 
-@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-04-13T17:33:37")
+@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2020-07-04T19:39:50")
 @StaticMetamodel(FaFoodTypes.class)
 public class FaFoodTypes_ { 
 

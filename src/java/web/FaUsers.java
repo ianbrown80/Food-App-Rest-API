@@ -7,6 +7,7 @@ package web;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,7 +19,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -42,27 +44,31 @@ public class FaUsers implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
+    @Basic(optional = true)
     @Column(name = "user_id")
     private Integer userId;
-    @Basic(optional = false)
-    @NotNull
+    @Basic(optional = true)
     @Size(min = 1, max = 255)
     @Column(name = "name")
     private String name;
-    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
-    @Basic(optional = false)
-    @NotNull
+    @Basic(optional = true)
     @Size(min = 1, max = 255)
     @Column(name = "email")
     private String email;
-    @Basic(optional = false)
-    @NotNull
+    @Basic(optional = true)
     @Size(min = 1, max = 255)
     @Column(name = "password")
     private String password;
     @Column(name = "salt")
     private String salt;
+    @Basic(optional = true)
+    @Size(min = 1, max = 255)
+    @Column(name = "access_token")
+    private String accessToken;
+    @Basic(optional = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "token_expiry")
+    private Date tokenExpiry;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<FaFoodDiary> faFoodDiaryCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
@@ -79,7 +85,23 @@ public class FaUsers implements Serializable {
         this.userId = userId;
         this.name = name;
         this.email = email;
+        this.password = password;
         this.salt = salt;
+    }
+    
+    public FaUsers(Integer userId, String name, String email, String password ) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+    
+    public FaUsers(Integer userId, String name, String email, String accessToken, Date tokenExpiry) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.accessToken = accessToken;
+        this.tokenExpiry = tokenExpiry;
     }
 
     public Integer getUserId() {
@@ -120,6 +142,22 @@ public class FaUsers implements Serializable {
 
     public void setSalt(String salt) {
         this.salt = salt;
+    }
+    
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+    
+    public Date getTokenExpiry() {
+        return tokenExpiry;
+    }
+
+    public void setTokenExpiry(Date tokenExpiry) {
+        this.tokenExpiry = tokenExpiry;
     }
 
     @XmlTransient

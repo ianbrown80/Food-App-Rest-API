@@ -53,9 +53,8 @@ public class FaFoodTypesFacadeREST extends AbstractFacade<FaFoodTypes> {
     }
     
     @PUT
-    @Path("{id}")
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response edit(@PathParam("id") Integer id, FaFoodTypes entity) {
+    public Response editFoodTypes(FaFoodTypes entity) {
         
         Error updateFail = new Error( 102, "failed", "Unable to update user");
         Error updateSuccess = new Error( 201, "success", "The user was updated successfully");

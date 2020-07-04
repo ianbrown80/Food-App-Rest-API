@@ -7,6 +7,7 @@ package web.service;
 
 import java.util.List;
 import javax.persistence.EntityManager;
+import web.FaUsers;
 
 /**
  *
@@ -25,6 +26,7 @@ public abstract class AbstractFacade<T> {
     public Boolean create(T entity) {
         try {
             getEntityManager().persist(entity);
+            getEntityManager().flush();
             return true;
         } catch( Exception e ) {
             return false;
@@ -53,7 +55,8 @@ public abstract class AbstractFacade<T> {
     public T find(Object id) {
         return getEntityManager().find(entityClass, id);
     }
-
+    
+  
     public List<T> findAll() {
         javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
         cq.select(cq.from(entityClass));
@@ -77,9 +80,14 @@ public abstract class AbstractFacade<T> {
         return ((Long) q.getSingleResult()).intValue();
     }
     
-    public T login(String e) {
+    public T getEmail(String email) {
         
-        return (T) getEntityManager().createNamedQuery("FaUsers.findByEmail").setParameter("email", e).getSingleResult();
+        try {
+            FaUsers user = (FaUsers) getEntityManager().createNamedQuery("FaUsers.findByEmail").setParameter("email", email).getSingleResult();
+            return (T) user;
+        } catch( Exception e ) {
+            return null;
+        }
         
     }
     

@@ -12,7 +12,7 @@ import javax.ws.rs.core.Application;
  *
  * @author Ian
  */
-@javax.ws.rs.ApplicationPath("webapi")
+@javax.ws.rs.ApplicationPath("webresources")
 public class ApplicationConfig extends Application {
 
     @Override
@@ -29,6 +29,7 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(utilities.CORSFilter.class);
         resources.add(web.service.FaFoodDiaryFacadeREST.class);
         resources.add(web.service.FaFoodTypesFacadeREST.class);
         resources.add(web.service.FaFoodsFacadeREST.class);
